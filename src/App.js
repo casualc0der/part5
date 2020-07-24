@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Blog from "./components/Blog";
+import BlogForm from "./components/BlogForm";
+import Togglable from "./components/Togglable";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 import Notification from "./components/Notification";
@@ -7,9 +9,6 @@ import Notification from "./components/Notification";
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
-  const [blogTitle, setBlogTitle] = useState("");
-  const [blogAuthor, setBlogAuthor] = useState("");
-  const [blogUrl, setBlogUrl] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
@@ -44,6 +43,7 @@ const App = () => {
       }, 5000);
     }
   };
+
   const loginForm = () => (
     <form onSubmit={handleLogin}>
       <div>
@@ -67,29 +67,17 @@ const App = () => {
       </div>
     </form>
   );
-  const handleLogOut = () => {
-    window.localStorage.removeItem("loggedBlogAppUser");
-    setUser(null);
-  };
 
-  const handleBlogSubmit = async (event) => {
-    event.preventDefault();
+  const addBlog = async (blogObject) => {
     try {
-      await blogService.create({
-        title: blogTitle,
-        author: blogAuthor,
-        url: blogUrl,
-      });
-
-      const updatedBlogs = await blogService.getAll();
-      setErrorMessage(`${blogTitle} by ${blogAuthor} was added to the list!`);
+      const returnedBlog = await blogService.create(blogObject);
+      setBlogs(blogs.concat(returnedBlog));
+      setErrorMessage(
+        `${blogObject.title} by ${blogObject.author} was added to the list!`
+      );
       setTimeout(() => {
         setErrorMessage(null);
       }, 5000);
-      setBlogTitle("");
-      setBlogUrl("");
-      setBlogAuthor("");
-      setBlogs(updatedBlogs);
     } catch (error) {
       setErrorMessage(
         "ERROR: Please fill in all fields (min length is 3 characters)"
@@ -99,41 +87,11 @@ const App = () => {
       }, 5000);
     }
   };
-  const blogForm = () => (
-    <>
-      <h1>Create New</h1>
-      <form onSubmit={handleBlogSubmit}>
-        <div>
-          Title:
-          <input
-            type="text"
-            value={blogTitle}
-            name="Title"
-            onChange={({ target }) => setBlogTitle(target.value)}
-          />
-        </div>
-        <div>
-          Author:
-          <input
-            type="text"
-            value={blogAuthor}
-            name="Author"
-            onChange={({ target }) => setBlogAuthor(target.value)}
-          />
-        </div>
-        <div>
-          URL:
-          <input
-            type="text"
-            value={blogUrl}
-            name="URL"
-            onChange={({ target }) => setBlogUrl(target.value)}
-          />
-        </div>
-        <button type="submit">Add</button>
-      </form>
-    </>
-  );
+  const handleLogOut = () => {
+    window.localStorage.removeItem("loggedBlogAppUser");
+    setUser(null);
+  };
+
   return (
     <div>
       <Notification message={errorMessage} />
@@ -144,7 +102,9 @@ const App = () => {
           {" "}
           <p>{user.name} is logged in</p>
           <button onClick={handleLogOut}>Logout</button>
-          {blogForm()}
+          <Togglable buttonLabel={"Submit new blog"}>
+            <BlogForm createBlog={addBlog} />
+          </Togglable>
           <h2>blogs</h2>
           {blogs.map((blog) => (
             <Blog key={blog.id} blog={blog} />
