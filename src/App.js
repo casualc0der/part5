@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
 import Togglable from "./components/Togglable";
@@ -71,6 +71,7 @@ const App = () => {
   const addBlog = async (blogObject) => {
     try {
       const returnedBlog = await blogService.create(blogObject);
+      blogFormRef.current.toggleVisibility();
       setBlogs(blogs.concat(returnedBlog));
       setErrorMessage(
         `${blogObject.title} by ${blogObject.author} was added to the list!`
@@ -92,6 +93,7 @@ const App = () => {
     setUser(null);
   };
 
+  const blogFormRef = useRef();
   return (
     <div>
       <Notification message={errorMessage} />
@@ -102,7 +104,7 @@ const App = () => {
           {" "}
           <p>{user.name} is logged in</p>
           <button onClick={handleLogOut}>Logout</button>
-          <Togglable buttonLabel={"Submit new blog"}>
+          <Togglable buttonLabel={"Submit new blog"} ref={blogFormRef}>
             <BlogForm createBlog={addBlog} />
           </Togglable>
           <h2>blogs</h2>
