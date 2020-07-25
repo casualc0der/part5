@@ -71,8 +71,11 @@ const App = () => {
   const addBlog = async (blogObject) => {
     try {
       const returnedBlog = await blogService.create(blogObject);
+      console.log(returnedBlog);
+
       blogFormRef.current.toggleVisibility();
-      setBlogs(blogs.concat(returnedBlog));
+      const newBlogs = [...blogs];
+      setBlogs(newBlogs.concat(returnedBlog));
       setErrorMessage(
         `${blogObject.title} by ${blogObject.author} was added to the list!`
       );
@@ -133,6 +136,7 @@ const App = () => {
           <button onClick={() => sortBlogs()}>Most Popular</button>
           {blogs.map((blog) => (
             <Blog
+              user={user}
               del={deleteBlog}
               likes={updateLikes}
               key={blog.id}
