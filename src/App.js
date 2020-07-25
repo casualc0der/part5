@@ -106,7 +106,15 @@ const App = () => {
     setBlogs(sortedBlogs);
     blogs.map((x) => x);
   };
-
+  const deleteBlog = async (blogObject) => {
+    const result = window.confirm(`Really delete ${blogObject.title}?`);
+    if (result) {
+      await blogService.remove(blogObject.id);
+      const blogCopy = [...blogs];
+      const updatedBlogs = blogCopy.filter((blog) => blog.id !== blogObject.id);
+      setBlogs(updatedBlogs);
+    }
+  };
   const blogFormRef = useRef();
   return (
     <div>
@@ -124,7 +132,12 @@ const App = () => {
           <h2>blogs</h2>
           <button onClick={() => sortBlogs()}>Most Popular</button>
           {blogs.map((blog) => (
-            <Blog likes={updateLikes} key={blog.id} blog={blog} />
+            <Blog
+              del={deleteBlog}
+              likes={updateLikes}
+              key={blog.id}
+              blog={blog}
+            />
           ))}
         </div>
       )}
