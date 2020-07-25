@@ -5,14 +5,12 @@ import Togglable from "./components/Togglable";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 import Notification from "./components/Notification";
+import LoginForm from "./components/LoginForm";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
-  const [username, setUserName] = useState("");
-  const [password, setPassword] = useState("");
-
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
   }, []);
@@ -24,8 +22,7 @@ const App = () => {
       blogService.setToken(user.token);
     }
   }, []);
-  const handleLogin = async (event) => {
-    event.preventDefault();
+  const handleLogin = async ({ username, password }) => {
     try {
       const user = await loginService.login({
         username,
@@ -34,8 +31,6 @@ const App = () => {
       window.localStorage.setItem("loggedBlogAppUser", JSON.stringify(user));
       blogService.setToken(user.token);
       setUser(user);
-      setUserName("");
-      setPassword("");
     } catch (exception) {
       setErrorMessage("Wrong username/password");
       setTimeout(() => {
@@ -43,30 +38,6 @@ const App = () => {
       }, 5000);
     }
   };
-
-  const loginForm = () => (
-    <form onSubmit={handleLogin}>
-      <div>
-        username
-        <input
-          type="text"
-          value={username}
-          name="Username"
-          onChange={({ target }) => setUserName(target.value)}
-        />
-      </div>
-      <div>
-        password
-        <input
-          type="password"
-          value={password}
-          name="Password"
-          onChange={({ target }) => setPassword(target.value)}
-        />
-        <button type="submit">login</button>
-      </div>
-    </form>
-  );
 
   const addBlog = async (blogObject) => {
     try {
@@ -123,7 +94,7 @@ const App = () => {
     <div>
       <Notification message={errorMessage} />
       {user === null ? (
-        loginForm()
+        <LoginForm login={handleLogin} />
       ) : (
         <div>
           {" "}
