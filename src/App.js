@@ -92,6 +92,21 @@ const App = () => {
     window.localStorage.removeItem("loggedBlogAppUser");
     setUser(null);
   };
+  const updateLikes = async (blogObject) => {
+    const newObject = { ...blogObject };
+    newObject.likes++;
+    blogService.update(blogObject.id, newObject);
+    const blogs = await blogService.getAll();
+    setBlogs(blogs);
+  };
+
+  const sortBlogs = () => {
+    const blogsCopy = [...blogs];
+    const sortedBlogs = blogsCopy.sort((a, b) => b.likes - a.likes);
+    console.log(sortedBlogs);
+    setBlogs(sortedBlogs);
+    blogs.map((x) => x);
+  };
 
   const blogFormRef = useRef();
   return (
@@ -108,8 +123,9 @@ const App = () => {
             <BlogForm createBlog={addBlog} />
           </Togglable>
           <h2>blogs</h2>
+          <button onClick={() => sortBlogs()}>Most Popular</button>
           {blogs.map((blog) => (
-            <Blog key={blog.id} blog={blog} />
+            <Blog likes={updateLikes} key={blog.id} blog={blog} />
           ))}
         </div>
       )}
