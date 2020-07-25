@@ -103,7 +103,6 @@ const App = () => {
   const sortBlogs = () => {
     const blogsCopy = [...blogs];
     const sortedBlogs = blogsCopy.sort((a, b) => b.likes - a.likes);
-    console.log(sortedBlogs);
     setBlogs(sortedBlogs);
     blogs.map((x) => x);
   };
